@@ -1,0 +1,73 @@
+{
+       "id": "default",
+       "network": {
+	    "network_paramset": 0,
+	    "n_e" : 9000,
+	    "n_i" : 100,
+	    "place_cell_ratio" : 0.5,
+	    "cue_cell_ratio" : 0.1,
+	    "in_cue_cell_ratio": 0.5,
+	    "infield_rate": 20,
+	    "outfield_rate": 0.1
+	},
+       "online": {
+           "online_paramset": 0,
+	    "linear": true,
+	    "duration": 40, // 400
+	    "seed": 1235
+       },
+       "synapse": {
+           "synapse_paramset": 0,
+	    "stdp_type": "sym",
+	    "taup" : 62.5,
+	    "taum" : 62.5,
+	    "ap" : 4e-3,
+	    "am" : 4e-3,
+	    "wmax": 2e-8,
+	    "w_init": 1e-10,
+	    "itaup": 5,
+	    "itaum": 5,
+	    "scale_factor": 0.62,
+	    "ee_plasticity": 1,
+	    "ie_plasticity": 1,
+	    "ei_plasticity": 0
+       },
+       "synapse2": {
+           "synapse_paramset": 1,
+	    "stdp_type": "sym",
+	    "taup" : 62.5,
+	    "taum" : 62.5,
+	    "ap" : 4e-3,
+	    "am" : 4e-3,
+	    "wmax": 2e-8,
+	    "w_init": 1e-10,
+	    "itaup": 5,
+	    "itaum": 5,
+	    "scale_factor": 0.62,
+	    "ee_plasticity": 1,
+	    "ie_plasticity": 1,
+	    "ei_plasticity": 1
+       },
+//        "synapse3": {
+//           "synapse_paramset": 2,
+//	    "stdp_type": "sym",
+//	    "taup" : 62.5,
+//	    "taum" : 62.5,
+//	    "ap" : 4e-3,
+//	    "am" : 4e-3,
+//	    "wmax": 2e-8,
+//	    "w_init": 1e-10,
+//	    "itaup": 5,
+//	    "itaum": 5,
+//	    "scale_factor": 0.62,
+//	    "ee_plasticity": 1,
+//	    "ie_plasticity": 0,
+//	    "ei_plasticity": 0
+//       },
+       "offline": {
+	    "offline_paramset": 0,
+	    "offline_duration": 3, // 10
+	    "selection": [0,1,2,3,4,5,6,7,8,9,10],
+	    "seed": 12345
+       }
+}
