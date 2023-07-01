@@ -92,16 +92,18 @@ def run_simulation_interneurons(wmx_PC_E, wmx_IN_PC, wmx_PC_IN, STDP_mode,
 
     C_PC_IN = Synapses(PCs, place_INs, "w_exc2:1",  on_pre="x_ampa+=norm_BC_E*w_exc2", delay=delay_BC_E)
     nonzero_weights = np.nonzero(wmx_PC_IN)
-    C_PC_IN.connect(p=connection_prob_PC)
+    #C_PC_IN.connect(p=connection_prob_PC)
+    C_PC_IN.connect(i=nonzero_weights[0], j=nonzero_weights[1])
     if ei_plasticity:
         C_PC_IN.w_exc2 = wmx_PC_IN[nonzero_weights].flatten()
         del wmx_PC_IN
 
 
+    # Wrong convention, oops
     C_PC_I = Synapses(BCs, PCs, on_pre="x_gaba+=norm_PC_I*w_PC_I", delay=delay_PC_I)
     C_PC_I.connect(p=connection_prob_BC)
 
-    C_BC_E = Synapses(PCs, BCs, on_pre="x_ampa+=1.8*norm_BC_E*w_BC_E", delay=delay_BC_E)
+    C_BC_E = Synapses(PCs, BCs, on_pre="x_ampa+=norm_BC_E*w_BC_E", delay=delay_BC_E) # 1.1 # 1.8 x ??? 
     C_BC_E.connect(p=connection_prob_PC)
 
     C_BC_I = Synapses(BCs, BCs, on_pre="x_gaba+=norm_BC_I*w_BC_I", delay=delay_BC_I)

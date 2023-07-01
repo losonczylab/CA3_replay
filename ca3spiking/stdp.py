@@ -94,11 +94,11 @@ def learning_with_interneurons(spiking_neurons, spike_times, spiking_ins,
                 dA_postsyn/dt = -A_postsyn/(itaum) : 1 (event-driven)
                 """,
                 on_pre="""
-                A_presyn += Ap
+                A_presyn += 5*Ap  
                 w = clip(w + A_postsyn, 0, wmax) # +!
                 """,
                 on_post="""
-                A_postsyn += Am
+                A_postsyn += 5*Am  
                 w = clip(w + A_presyn, 0, wmax) # +!
                 """)
         IN_STDP.connect(p=connection_prob_BC)#PC_pIN)
@@ -138,6 +138,14 @@ def learning_with_interneurons(spiking_neurons, spike_times, spiking_ins,
     run(time*second, report="text")
     device.build(directory=None, clean=False, compile=True, run=True, debug=False)
 
+    weightmx = np.zeros((nPCs, nPCs))
+
+    if ee_plasticity:
+        weightmx[STDP.i[:], STDP.j[:]] = STDP.w[:]
+    else:
+        weightmx[STDP.i[:], STDP.j[:]] = np.random.rand(*STDP.w[:].shape) * w_init
+
+
     in_weight_mx = np.zeros((n_place_ins, nPCs))
 
     if ie_plasticity:
@@ -151,13 +159,6 @@ def learning_with_interneurons(spiking_neurons, spike_times, spiking_ins,
         pc_in_weight_mx[PC_IN_STDP.i[:], PC_IN_STDP.j[:]] = PC_IN_STDP.w[:]
     else:
         pc_in_weight_mx[PC_IN_STDP.i[:], PC_IN_STDP.j[:]] = np.random.rand(*PC_IN_STDP.w[:].shape) * w_init
-
-    weightmx = np.zeros((nPCs, nPCs))
-
-    if ee_plasticity:
-        weightmx[STDP.i[:], STDP.j[:]] = STDP.w[:]
-    else:
-        weightmx[STDP.i[:], STDP.j[:]] = np.random.rand(*STDP.w[:].shape) * w_init
 
 
     return weightmx, in_weight_mx, pc_in_weight_mx

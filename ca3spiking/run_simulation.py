@@ -30,13 +30,6 @@ from ca3spiking.spw_network import run_simulation_interneurons, preprocess_monit
 
 schema = dj.schema('ca3_model', locals())
 
-parser = argparse.ArgumentParser()
-parser.add_argument("--clear", "-c", action="store_true")
-args = parser.parse_args()
-
-if args.clear:
-    schema.drop()
-    schema = dj.schema('ca3_model', locals())
 
 def repeat_zip(nid, spt):
     for i, times in zip(nid, spt):
@@ -197,8 +190,8 @@ class Weights(dj.Computed):
     -> SynapseParameters
     ---
     ee_weights: blob@ca3-external
-    ie_weights: blob@ca3-external # i<-e
-    ei_weights: blob@ca3-external # e<-i
+    ie_weights: blob@ca3-external # i->e
+    ei_weights: blob@ca3-external # e->i
     """
         
     def make(self, key):        
@@ -231,8 +224,8 @@ class Weights(dj.Computed):
                                                                              ie_plasticity=syn_params.fetch1("ie_plasticity"),
                                                                              ei_plasticity=syn_params.fetch1("ei_plasticity"))
         key['ee_weights'] = weightmx
-        key['ei_weights'] = in_weight_mx
-        key['ie_weights'] = pc_in_weight_mx
+        key['ie_weights'] = in_weight_mx
+        key['ei_weights'] = pc_in_weight_mx
         
         self.insert1(key)
 
@@ -274,13 +267,17 @@ class Replay(dj.Computed):
     spiking_neurons_in: blob@ca3-external
     rate_in: blob@ca3-external
     """
+
+
+    # Use source->target convention throughout
     
     def _make_tuples(self, key):
         weights = (Weights() & key).fetch1()
         
         wmx_PC_E = weights["ee_weights"] * 1e9
-        wmx_IN_PC = weights["ei_weights"] * 1e9
-        wmx_PC_IN = weights["ie_weights"] * 1e9
+        # swapped 6/30
+        wmx_IN_PC = weights["ie_weights"] * 1e9
+        wmx_PC_IN = weights["ei_weights"] * 1e9
         
         stdp_mode = (SynapseParameters() & key).fetch1("stdp_type")
         syn_params = SynapseParameters() & key
@@ -383,8 +380,8 @@ class OfflineSimulation(dj.Computed):
         weights = (Weights() & key).fetch1()
 
         wmx_PC_E = weights["ee_weights"] * 1e9
-        wmx_IN_PC = weights["ei_weights"] * 1e9
-        wmx_PC_IN = weights["ie_weights"] * 1e9
+        wmx_IN_PC = weights["ie_weights"] * 1e9
+        wmx_PC_IN = weights["ei_weights"] * 1e9
 
         stdp_mode = (SynapseParameters() & key).fetch1("stdp_type")
 
@@ -407,6 +404,7 @@ class OfflineSimulation(dj.Computed):
                                                                                                   verbose=True)
         return SM_PC, SM_BC, RM_PC, RM_BC, selection, StateM_PC, StateM_BC
 
+
 @schema
 class ReplayRaster(dj.Computed):
     definition = """
@@ -418,18 +416,56 @@ class ReplayRaster(dj.Computed):
     def _make_tuples(self, key):
         sns.set(style='ticks', context='talk')
         offline_simulation = OfflineSimulation() & key
-        neuron_id, offline_spike_times = offline_simulation.OfflineSpikeTimes().fetch("neuron_id", 'offline_spike_times')
+        neuron_id, offline_spike_times, is_cue, is_interneuron = (offline_simulation.OfflineSpikeTimes() * OnlineSimulation.Neuron()).fetch(
+                                                                    "neuron_id", 'offline_spike_times', 'cue_cell', 'interneuron')
         fig, ax = plt.subplots()
-        wht = list(zip(*repeat_zip(neuron_id, offline_spike_times)))
-        ax.scatter(np.concatenate(wht[1])[::100], np.concatenate(wht[0])[::100], marker='|', color='k')
+        
+        nid, t = list(zip(*repeat_zip(neuron_id, offline_spike_times)))
+        nid = np.array(nid)
+        t = np.array(t)
+        idx = np.arange(len(nid))
+
+        try:
+            in_idx, = np.where(is_interneuron& (idx%100 == 0))
+            ax.scatter(np.concatenate(t[in_idx]), np.concatenate(nid[in_idx]), marker='|', color='r')
+        except:
+            pass
+        
+        try:
+            cue_idx, = np.where(is_cue& (idx%100 == 0))
+            ax.scatter(np.concatenate(t[cue_idx]), np.concatenate(nid[cue_idx]), marker='|', color='goldenrod')
+        except:
+            pass
+        
+        try:
+            cue_in_idx = np.where(is_cue & is_interneuron & (idx%100 == 0))
+            ax.scatter(np.concatenate(t[cue_in_idx]), np.concatenate(nid[cue_in_idx]), marker='|', color='g')        
+        except:
+            pass
+        
+        try:
+            other_idx, = np.where((~is_interneuron) &(~is_cue) & (idx%100 == 0))
+            ax.scatter(np.concatenate(t[other_idx]), np.concatenate(nid[other_idx]), marker='|', color='k')
+        except:
+            pass
+        
         ax.set_xlabel("time (s)")
         ax.set_ylabel("neuron #")
         fig.savefig("raster.pdf", bbox_inches='tight')
         self.insert1({**key, 'raster': 'raster.pdf'})
 
+
 if __name__ == "__main__":
     import json as json
     import matplotlib.pyplot as plt
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--clear", "-c", action="store_true")
+    args = parser.parse_args()
+
+    if args.clear:
+        schema.drop(force=True)
+        quit()
 
     with open('params.json') as f:
         params = json.load(f)
@@ -442,8 +478,8 @@ if __name__ == "__main__":
 
     synapse_parameters = SynapseParameters()
     synapse_parameters.insert1(params['synapse'], skip_duplicates=True)
-    synapse_parameters.insert1(params['synapse2'], skip_duplicates=True)
-    synapse_parameters.insert1(params['synapse3'], skip_duplicates=True)
+    #synapse_parameters.insert1(params['synapse2'], skip_duplicates=True)
+    #synapse_parameters.insert1(params['synapse3'], skip_duplicates=True)
 
     online_simulation = OnlineSimulation()
     online_simulation.populate()
@@ -451,14 +487,10 @@ if __name__ == "__main__":
     weights = Weights()
     weights.populate()
 
-    try:
-        offline_parameters = OfflineParameters()
-        offline_parameters.insert1(params['offline'], skip_duplicates=True)
-        offline = OfflineSimulation()
-        offline.populate()
+    offline_parameters = OfflineParameters()
+    offline_parameters.insert1(params['offline'], skip_duplicates=True)
+    offline = OfflineSimulation()
+    offline.populate()
 
-        raster = ReplayRaster()
-        raster.populate()
-    except RuntimeError:
-        print("Online simulation completed. Run this script again to run the offline simulation")
-    
+    raster = ReplayRaster()
+    raster.populate()
