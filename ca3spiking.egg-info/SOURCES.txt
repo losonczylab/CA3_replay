@@ -1,5 +1,0 @@
-setup.py
-ca3spiking.egg-info/PKG-INFO
-ca3spiking.egg-info/SOURCES.txt
-ca3spiking.egg-info/dependency_links.txt
-ca3spiking.egg-info/top_level.txt
