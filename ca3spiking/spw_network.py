@@ -80,14 +80,14 @@ def run_simulation_interneurons(wmx_PC_E, wmx_IN_PC, wmx_PC_IN, STDP_mode,
     nonzero_weights = np.nonzero(wmx_PC_E)
     C_PC_E.connect(i=nonzero_weights[0], j=nonzero_weights[1])
     if ee_plasticity:
-        C_PC_E.w_exc = wmx_PC_E[nonzero_weights].flatten()
+        C_PC_E.w_exc[:] = wmx_PC_E[nonzero_weights].flatten()
         del wmx_PC_E
 
     C_IN_PC = Synapses(place_INs, PCs, "w_inh:1", on_pre="x_gaba+=norm_PC_I*w_inh", delay=delay_PC_I)
     nonzero_weights = np.nonzero(wmx_IN_PC)
     C_IN_PC.connect(i=nonzero_weights[0], j=nonzero_weights[1])
     if ie_plasticity:
-        C_IN_PC.w_inh = wmx_IN_PC[nonzero_weights].flatten()
+        C_IN_PC.w_inh[:] = wmx_IN_PC[nonzero_weights].flatten()
         del wmx_IN_PC
 
     C_PC_IN = Synapses(PCs, place_INs, "w_exc2:1",  on_pre="x_ampa+=norm_BC_E*w_exc2", delay=delay_BC_E)
@@ -95,7 +95,7 @@ def run_simulation_interneurons(wmx_PC_E, wmx_IN_PC, wmx_PC_IN, STDP_mode,
     #C_PC_IN.connect(p=connection_prob_PC)
     C_PC_IN.connect(i=nonzero_weights[0], j=nonzero_weights[1])
     if ei_plasticity:
-        C_PC_IN.w_exc2 = wmx_PC_IN[nonzero_weights].flatten()
+        C_PC_IN.w_exc2[:] = wmx_PC_IN[nonzero_weights].flatten()
         del wmx_PC_IN
 
 

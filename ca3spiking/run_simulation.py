@@ -477,8 +477,8 @@ if __name__ == "__main__":
     simulation_parameters.insert1(params['online'], skip_duplicates=True)
 
     synapse_parameters = SynapseParameters()
-    synapse_parameters.insert1(params['synapse'], skip_duplicates=True)
-    #synapse_parameters.insert1(params['synapse2'], skip_duplicates=True)
+    #synapse_parameters.insert1(params['synapse'], skip_duplicates=True)
+    synapse_parameters.insert1(params['synapse2'], skip_duplicates=True)
     #synapse_parameters.insert1(params['synapse3'], skip_duplicates=True)
 
     online_simulation = OnlineSimulation()

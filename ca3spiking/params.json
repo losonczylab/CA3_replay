@@ -13,7 +13,7 @@
        "online": {
            "online_paramset": 0,
 	    "linear": true,
-	    "duration": 200, 
+	    "duration": 280, 
 	    "seed": 1235
        },
        "synapse": {
@@ -25,8 +25,8 @@
 	    "am" : 4e-3,
 	    "wmax": 2e-8,
 	    "w_init": 1e-10,
-	    "itaup": 3,
-	    "itaum": 3,
+	    "itaup": 5,
+	    "itaum": 5,
 	    "scale_factor": 0.62,
 	    "ee_plasticity": 1,
 	    "ie_plasticity": 1,

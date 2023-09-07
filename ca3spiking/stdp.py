@@ -90,15 +90,15 @@ def learning_with_interneurons(spiking_neurons, spike_times, spiking_ins,
         IN_STDP = Synapses(IN, PC,
                 """
                 w : 1
-                dA_presyn/dt = -A_presyn/(itaup) : 1 (event-driven)
-                dA_postsyn/dt = -A_postsyn/(itaum) : 1 (event-driven)
+                dA_presyn/dt = -A_presyn/itaup : 1 (event-driven) # itaup
+                dA_postsyn/dt = -A_postsyn/itaum : 1 (event-driven) # itaum
                 """,
                 on_pre="""
-                A_presyn += 5*Ap  
+                A_presyn += Ap  
                 w = clip(w + A_postsyn, 0, wmax) # +!
                 """,
                 on_post="""
-                A_postsyn += 5*Am  
+                A_postsyn += Am  
                 w = clip(w + A_presyn, 0, wmax) # +!
                 """)
         IN_STDP.connect(p=connection_prob_BC)#PC_pIN)
