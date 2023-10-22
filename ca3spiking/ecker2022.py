@@ -1,5 +1,5 @@
 """
-Adapted from work by András Ecker, Eszter Vértes, Szabolcs Káli
+Parameters and equations adapted from work by András Ecker, Eszter Vértes, Szabolcs Káli
 See https://elifesciences.org/articles/71850v1 
 """
 from brian2 import *
