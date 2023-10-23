@@ -482,14 +482,14 @@ if __name__ == "__main__":
     #synapse_parameters.insert1(params['synapse3'], skip_duplicates=True)
 
     online_simulation = OnlineSimulation()
-    online_simulation.populate()
+    online_simulation.populate(suppress_errors=True)
 
     weights = Weights()
     weights.populate()
 
     offline_parameters = OfflineParameters()
     offline_parameters.insert1(params['offline'], skip_duplicates=True)
-    offline = OfflineSimulation()
+    offline = OfflineSimulation(suppress_errors=True)
     offline.populate()
 
     raster = ReplayRaster()
