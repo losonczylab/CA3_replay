@@ -200,11 +200,11 @@ class Weights(dj.Computed):
         online_params = OnlineParameters() & key 
         nw_params = NetworkParameters() & key
         
-        pcs = (OnlineSimulation.OnlineSpikeTimes() & (OnlineSimulation.Neuron() & 'interneuron = 0'))
-        ins = (OnlineSimulation.OnlineSpikeTimes() & (OnlineSimulation.Neuron() & 'interneuron = 1'))
+        pcs = (OnlineSimulation.OnlineSpikeTimes() & (OnlineSimulation.Neuron() & 'interneuron = 0')) & key
+        ins = (OnlineSimulation.OnlineSpikeTimes() & (OnlineSimulation.Neuron() & 'interneuron = 1')) & key
         
-        spiking_neurons, spike_times = spike_times_helper(pcs, OnlineSimulation.Neuron())
-        spiking_ins, in_spike_times = spike_times_helper(ins, OnlineSimulation.Neuron())
+        spiking_neurons, spike_times = spike_times_helper(pcs, OnlineSimulation.Neuron() & key)
+        spiking_ins, in_spike_times = spike_times_helper(ins, OnlineSimulation.Neuron() & key)
         
         weightmx, in_weight_mx, pc_in_weight_mx = learning_with_interneurons(spiking_neurons, spike_times, 
                                                                              spiking_ins, in_spike_times, 
@@ -482,14 +482,14 @@ if __name__ == "__main__":
     #synapse_parameters.insert1(params['synapse3'], skip_duplicates=True)
 
     online_simulation = OnlineSimulation()
-    online_simulation.populate(suppress_errors=True)
+    online_simulation.populate()
 
     weights = Weights()
     weights.populate()
 
     offline_parameters = OfflineParameters()
     offline_parameters.insert1(params['offline'], skip_duplicates=True)
-    offline = OfflineSimulation(suppress_errors=True)
+    offline = OfflineSimulation()
     offline.populate()
 
     raster = ReplayRaster()
