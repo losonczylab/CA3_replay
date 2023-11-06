@@ -21,6 +21,7 @@ import ca3spiking as ca3
 import itertools
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 import seaborn as sns
 
 import argparse
@@ -416,7 +417,7 @@ class ReplayRaster(dj.Computed):
     def _make_tuples(self, key):
         sns.set(style='ticks', context='talk')
         offline_simulation = OfflineSimulation() & key
-        neuron_id, offline_spike_times, is_cue, is_interneuron = (offline_simulation.OfflineSpikeTimes() * OnlineSimulation.Neuron()).fetch(
+        neuron_id, offline_spike_times, is_cue, is_interneuron = (offline_simulation.OfflineSpikeTimes() * (OnlineSimulation.Neuron() & offline_simulation)).fetch(
                                                                     "neuron_id", 'offline_spike_times', 'cue_cell', 'interneuron')
         fig, ax = plt.subplots()
         

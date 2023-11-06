@@ -10,6 +10,16 @@
 	    "infield_rate": 20,
 	    "outfield_rate": 0.1
 	},
+       "network_darian": {
+	    "network_paramset": 1,
+	    "n_e" : 9000,
+	    "n_i" : 100,
+	    "place_cell_ratio" : 0.8,
+	    "cue_cell_ratio" : 0.2,
+	    "in_cue_cell_ratio": 0.8,
+	    "infield_rate": 20,
+	    "outfield_rate": 0.1
+	},
        "online": {
            "online_paramset": 0,
 	    "linear": true,
